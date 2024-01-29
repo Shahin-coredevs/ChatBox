@@ -3,14 +3,16 @@ import userIcon from "../assets/UserIcon.svg";
 import AttachmentIcon from "../assets/attachmentIcon.svg";
 import PhotoIcon from "../assets/photoIcon.svg";
 import sendIcon from "../assets/sendIcon.svg";
+import { io } from "socket.io-client";
 
 const ChatBox = () => {
   //   const [text, setText] = useState('');
   const scrollRef = useRef();
   const [attach, setAttach] = useState([]);
   const [photo, setPhoto] = useState([]);
+ 
   const [allMessage, setAllMessage] = useState([
-    { text: "Hello world", time: "10:20PM", user: "other" },
+    { text: "Hello world", time: "10:20PM", user: "other", },
   ]);
   useEffect(()=> {
     scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -27,9 +29,13 @@ const ChatBox = () => {
     };
     setAllMessage((prev) => [...prev, data]);
     e.target.textfield.value = ""
-    console.log(attach);
+    
+    
   };
-  return (
+
+    
+ 
+    return (
     <div className="flex w-full flex-col justify-between h-screen">
       <div>
         {/* user info  */}
@@ -61,8 +67,12 @@ const ChatBox = () => {
                           <img className="w-full h-full" src={userIcon} alt="" />
                         </figure>
                         <div className="flex h-fit w-fit px-3 py-2 bg-slate-100 rounded-xl flex-col  justify-between">
-                            <p className="w-fit text-left h-fit break-words">{e.text}</p>
-                           
+                           {e.text && <p className="w-fit text-left h-fit break-words">{e.text}</p>}                           
+                           {e.image && <img className="h-52 w-auto" src={e.image} />}
+                           {e.attach && <div><div className="flex flex-col justify-between">
+                            <p>{e.name}</p>
+                           <a href={e.attach}> <p>Download</p></a>
+                            <p>{e.size}</p></div></div>}
                         </div>
                       </div>
                 </div> )
@@ -93,13 +103,24 @@ const ChatBox = () => {
             <div className="w-full flex gap-5 justify-center items-center bg-white px-3 py-1 rounded-xl">
               <label htmlFor="attachment">
                 {" "}
-                <figure className="w-16 h-10">
+                <figure className="w-16 h-10 cursor-pointer">
                   {" "}
                   <img className="w-full h-full" src={AttachmentIcon} alt="" />
                 </figure>{" "}
               </label>
               <input
-                onChange={(e) => {setAttach(e.target.value); console.log(e.target.files[0].name); }}
+                onChange={(e) => {
+                    const file = e.target.files[0]
+                    const name = e.target.files[0].name
+                    const size = e.target.files[0].size
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const imageSrc = e.target.result;
+                        setAllMessage([...allMessage,{attach:imageSrc,name:name,size, time:'10:20PM', user: "self"}])
+                        
+                    }
+                    reader.readAsDataURL(file)
+                }}
                 type="file"
                 id="attachment"
                 className="hidden"
@@ -113,13 +134,22 @@ const ChatBox = () => {
               />
               <label htmlFor="photo">
                 {" "}
-                <figure className="w-16 h-10">
+                <figure className="w-16 h-10 cursor-pointer">
                   {" "}
                   <img className="w-full h-full" src={PhotoIcon} alt="" />
                 </figure>
               </label>
               <input
-                onChange={(e) => setPhoto(e.target.value)}
+                onChange={(e) => {
+                    const file = e.target.files[0]
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const imageSrc = e.target.result;
+                        setAllMessage([...allMessage,{image:imageSrc, time:'10:20PM', user: "self"}])
+                        
+                    }
+                    reader.readAsDataURL(file)
+                }}
                 type="file"
                 className="hidden"
                 accept="image/*"
@@ -128,7 +158,7 @@ const ChatBox = () => {
             </div>
             <button type="submit">
               {" "}
-              <figure className="w-16 h-10">
+              <figure className="w-16 h-10 cursor-pointer">
                 {" "}
                 <img className="w-full h-full" src={sendIcon} alt="" />
               </figure>
