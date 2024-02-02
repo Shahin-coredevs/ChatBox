@@ -16,7 +16,7 @@ const ChatBox = ({user,deletedUser}) => {
   
 
   useEffect(() => {
-    setAllMessage(user?.message);
+    // setAllMessage(user?.message);
     socket.on("connectToRoom", (data) => {
       setAllMessage((prev) => [...prev, data]);
       return () => socket.off("connectToRoom");

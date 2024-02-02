@@ -2,6 +2,7 @@
 
 import userIcon from "../assets/UserIcon.svg";
 const User = ({ data, userHandler }) => {
+ 
   return (
     <>
       {data?.map((e, index) => (
