@@ -1,45 +1,33 @@
-
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { UserContext } from "../Context/ContextProvider";
 import axios from "axios";
 export default function LogIn() {
-  
-  const { setUser} = useContext(UserContext);
+  const { setLoggedUser } = useContext(UserContext);
   const navigate = useNavigate();
   const {
     register,
     formState: { errors },
   } = useForm();
 
- 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const fromData = e.target;
     const email = fromData.email.value;
     const password = fromData.password.value;
-    axios.post(`${import.meta.env.VITE_BASE_URL}/login`, {email, password},{withCredentials:true}).then(res =>{ console.log(res); navigate('/inbox')}).catch(err=> console.log(err));
-  //  const checkingUser = await fetch(`http://localhost:3000/users/${email}`).then(res=>res.json())
-  //  console.log(checkingUser);
-    
-    // if (password === checkingUser.password) {
-    //   localStorage.setItem("loggedUser",JSON.stringify(checkingUser))
-    //   setUser(checkingUser)
-    //   navigate("/inbox");
-    //   fromData.email.value = "";
-    //   fromData.password.value = "";
-    // } else {
-    //   alert("Wrong password");
-    // }
-   
+    axios
+      .post(
+        `${import.meta.env.VITE_BASE_URL}/login`,
+        { email, password },
+        { withCredentials: true }
+      )
+      .then((res) => {
+        setLoggedUser(res.data);
+        navigate("/inbox");
+      })
+      .catch((err) => console.log(err));
   };
-
-
-
- 
-
-
 
   return (
     <div className="w-1/2 mt-20 mx-auto h-full bg-slate-300 shadow-xl rounded-xl">

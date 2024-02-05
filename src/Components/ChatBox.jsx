@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import userIcon from "../assets/UserIcon.svg";
 import AttachmentIcon from "../assets/attachmentIcon.svg";
 import PhotoIcon from "../assets/photoIcon.svg";
@@ -8,21 +8,38 @@ import deleteIcon from "../assets/deleteIcon.svg";
 import { io } from "socket.io-client";
 import SelfText from "./SelfText";
 import OtherText from "./OtherText";
-const socket = io("http://localhost:3000");
+import { UserContext } from "../Context/ContextProvider";
+const socket = io("http://localhost:3000",{withCredentials:true});
 
 const ChatBox = ({user,deletedUser}) => {
   const scrollRef = useRef();
   const [allMessage, setAllMessage] = useState([]);
+  const {loggedUser} = useContext(UserContext)
   
 
   useEffect(() => {
-    // setAllMessage(user?.message);
+    socket.on('connect', (data)=>{
+      console.log(data);
+    })
     socket.on("connectToRoom", (data) => {
-      setAllMessage((prev) => [...prev, data]);
-      return () => socket.off("connectToRoom");
+       setAllMessage((prev) => [...prev, data]);
     });
-  }, [user]);
 
+    return ()=>{};
+  }, []);
+
+
+
+
+
+  useEffect(() => {
+    // setAllMessage(user?.message);
+    socket.on("message", (data) => {
+      console.log(data);
+      setAllMessage((prev) => [...prev, data]);
+      return () => socket.off("message");
+    });
+  }, []);
   useEffect(() => {
     scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [allMessage]);
@@ -32,10 +49,16 @@ const ChatBox = ({user,deletedUser}) => {
     const now = new Date();
     const time = now.getHours() + ":" + now.getMinutes();
     const text = e.target.textfield.value;
+    const sender = loggedUser.id
+    const receiver = user.id
+    const roomId = loggedUser.id+user.id
     const data = {
       text,
       time,
-      user: socket.id,
+      sender,
+      receiver,
+      roomId
+
     };
     socket.emit("message", data);
     e.target.textfield.value = "";
@@ -69,7 +92,7 @@ const ChatBox = ({user,deletedUser}) => {
         {allMessage?.map((e, index) => {
           return (
             <div key={index} className=" p-4 h-full  rounded-xl mb-5 ">
-              {e.user === socket.id || e.user === "self" ? <SelfText e={e} /> : <OtherText e={e} />}
+              {e.sender === loggedUser.id || e.sender === "self" ? <SelfText e={e} /> : <OtherText e={e} />}
             </div>
           );
         })}

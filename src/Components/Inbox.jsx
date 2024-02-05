@@ -8,35 +8,29 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 function Inbox() {
-  const { user } = useContext(UserContext);
+  const { loggedUser } = useContext(UserContext);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [useractive, setuserActive] = useState(null);
+  const [allUser, setAllUser] = useState(users);
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get( `${import.meta.env.VITE_BASE_URL}/users`, {withCredentials:true})
-    .then((data) => setUsers(data.data.filter((e) => e.id !== user?.id)));
-    // fetch("http://localhost:3000/users")
-    //   .then((res) => res.json())
-    //   .then((data) => setUsers(data.filter((e) => e.id !== user?.id)));
-    setLoading(false);
-  }, [user]);
+    const abrtSignal = new AbortController();
+    axios.get( `${import.meta.env.VITE_BASE_URL}/users`, {withCredentials:true, signal:abrtSignal.signal})
+    .then(({data}) => {
+      setUsers(data.filter((d) => d.id !== loggedUser?.id));
+      setuserActive(data.filter((d) => d.id !== loggedUser?.id)[0]);
+    })
+    .catch((err)=>console.log(err))
+    .finally(()=>setLoading(false));
 
-  // useEffect(() => {
-  //   setUser(localStorage.getItem("loggedUser"));
-  // }, [setUser]);
+    return ()=> abrtSignal.abort;
+    
+  }, [loggedUser]);
 
-  useEffect(() => {
-    console.log(user);
-  }, [user]);
 
-  const [useractive, setuserActive] = useState(users[0]);
-  const [allUser, setAllUser] = useState(users);
-
-  //   const inputRef = useRef();
-  // useEffect(() => {}, [useractive]);
-  //   console.log(useractive);
-
+ 
   const deletehandler = (item) => {
     const user = allUser.filter((e) => e.id !== item.id);
     setAllUser(user);
@@ -45,17 +39,11 @@ function Inbox() {
 
   const handleLoghOut = () => {
     localStorage.clear();
-    navigate("/");
+    axios.post(`${import.meta.env.VITE_BASE_URL}/logout`, {},{withCredentials:true})
+    .then(res =>{  navigate('/')})
+    .catch(err=> console.log(err));
   };
 
-  //   const createUser = () => {
-  //     const name = inputRef.current.value;
-  //     const id = allUser.length + 1;
-  //     const user = { id, name };
-  //     setAllUser((prev) => [...prev, user]);
-  //     console.log(user);
-  //     inputRef.current.value = "";
-  //   };
 
   if (loading)
     return <div className="bg-red-500 h-screen w-screen">Loading...</div>;
@@ -65,22 +53,13 @@ function Inbox() {
       <div className="bg-red-400 w-1/4 h-screen overflow-auto p-4">
         {/* userside */}
         <div className="flex gap-2">
-          {/* <input
-            ref={inputRef}
-            className="w-full  text-xl  h-12 rounded-xl p-5 outline-slate-800 mb-5"
-            type="text"
-            placeholder="search here ...."
-          />
-          <button onClick={createUser} className="w-10 h-10">
-            <img className="w-full" src={plusIcon} alt="" />
-          </button> */}
           <div className="p-4 bg-slate-100 rounded-xl mb-5">
             <div className="flex gap-5">
               <figure className="w-14 h-14 rounded-full">
                 <img src={userIcon} alt="" />
               </figure>
               <div>
-                <p className="">{user?.name}</p>
+                <p className="">{loggedUser?.name}</p>
               </div>
             </div>
           </div>
