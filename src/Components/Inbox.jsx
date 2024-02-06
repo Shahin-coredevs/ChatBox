@@ -20,7 +20,7 @@ function Inbox() {
     axios.get( `${import.meta.env.VITE_BASE_URL}/users`, {withCredentials:true, signal:abrtSignal.signal})
     .then(({data}) => {
       setUsers(data.filter((d) => d.id !== loggedUser?.id));
-      setuserActive(data.filter((d) => d.id !== loggedUser?.id)[0]);
+       setuserActive(data.filter((d) => d.id !== loggedUser?.id)[0]);
     })
     .catch((err)=>console.log(err))
     .finally(()=>setLoading(false));
@@ -43,6 +43,21 @@ function Inbox() {
     .then(res =>{  navigate('/')})
     .catch(err=> console.log(err));
   };
+
+  const handleActiveUser =  (e) => {
+    setuserActive(e)
+    const sender =  loggedUser?.id
+    const receiver = e?.id
+    const data = {sender,receiver}
+    axios
+      .post(
+        `${import.meta.env.VITE_BASE_URL}/conversations`, data)
+      .then((res) => {
+          console.log(res.data);
+      })
+      .catch((err) => console.log(err));
+
+  }
 
 
   if (loading)
@@ -71,7 +86,7 @@ function Inbox() {
             Log Out
           </button>
         </div>
-        <User data={users} userHandler={setuserActive} />
+        <User data={users} active={useractive} userHandler={handleActiveUser} />
       </div>
       {/* Inbox */}
       <div className="w-3/4">

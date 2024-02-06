@@ -9,7 +9,8 @@ const ContextProvider = ({children}) => {
     const [loading,setLoading] = useState(false);
     useEffect(()=>{
         setLoading(true);
-        axios.get(`${import.meta.env.VITE_BASE_URL}/me`, {withCredentials: true}).then(res =>setLoggedUser(res.data));
+        axios.get(`${import.meta.env.VITE_BASE_URL}/me`, {withCredentials: true})
+        .then(res =>setLoggedUser(res.data));
         setLoading(false)
     },[])
     if(loading) return <div className="">Loading...</div>

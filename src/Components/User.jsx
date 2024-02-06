@@ -1,15 +1,15 @@
 /* eslint-disable react/prop-types */
 
 import userIcon from "../assets/UserIcon.svg";
-const User = ({ data, userHandler }) => {
- 
+const User = ({ data, userHandler, active }) => {
+
   return (
     <>
       {data?.map((e, index) => (
         <div
           key={index}
           onClick={() => userHandler(e)}
-          className="p-4 bg-slate-100 rounded-xl mb-5"
+          className={`p-4  rounded-xl mb-5 ${active?.id === e.id ? 'bg-slate-300' : 'bg-slate-100'}`}
         >
           <div className="flex gap-5">
             <figure className="w-14 h-14 rounded-full">

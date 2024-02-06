@@ -1,9 +1,11 @@
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 const SignUp = () => {
   const {
     register,
     formState: { errors },
   } = useForm();
+  const navigate = useNavigate()
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -20,7 +22,9 @@ const SignUp = () => {
         },
         body: JSON.stringify(user),
       });
+      navigate('/')
       fromData.name.value = ''
+      fromData.email.value = ''
       fromData.password.value=''
 
   };

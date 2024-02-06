@@ -47,7 +47,7 @@ export default function LogIn() {
             className="input input-bordered w-full px-3 py-2 rounded-xl"
             required
           />
-          {errors.name?.type === "required" && (
+          {errors.email?.type === "required" && (
             <p className="text-red-600">Email is required</p>
           )}
         </div>

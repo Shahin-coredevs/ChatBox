@@ -9,36 +9,34 @@ import { io } from "socket.io-client";
 import SelfText from "./SelfText";
 import OtherText from "./OtherText";
 import { UserContext } from "../Context/ContextProvider";
-const socket = io("http://localhost:3000",{withCredentials:true});
+import axios from "axios";
+const socket = io("http://localhost:3000", { withCredentials: true });
 
-const ChatBox = ({user,deletedUser}) => {
+const ChatBox = ({ user, deletedUser }) => {
   const scrollRef = useRef();
   const [allMessage, setAllMessage] = useState([]);
-  const {loggedUser} = useContext(UserContext)
-  
+  const { loggedUser } = useContext(UserContext);
+  const roomId = loggedUser?.id + user?.id;
+  useEffect(() => {
+    axios
+      .get(`${import.meta.env.VITE_BASE_URL}/message/${roomId}`)
+      .then((res) => {
+        setAllMessage(res.data);
+        socket.emit("join", { connect: true, room: loggedUser?.id + user?.id });
+      });
+    return () => {
+      socket.emit("join", { connect: false, room: loggedUser?.id + user?.id });
+    };
+  }, [user.id]);
 
   useEffect(() => {
-    socket.on('connect', (data)=>{
-      console.log(data);
-    })
-    socket.on("connectToRoom", (data) => {
-       setAllMessage((prev) => [...prev, data]);
-    });
-
-    return ()=>{};
-  }, []);
-
-
-
-
-
-  useEffect(() => {
-    // setAllMessage(user?.message);
     socket.on("message", (data) => {
       console.log(data);
       setAllMessage((prev) => [...prev, data]);
-      return () => socket.off("message");
     });
+    return () => {
+      socket.off("message");
+    };
   }, []);
   useEffect(() => {
     scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -49,18 +47,21 @@ const ChatBox = ({user,deletedUser}) => {
     const now = new Date();
     const time = now.getHours() + ":" + now.getMinutes();
     const text = e.target.textfield.value;
-    const sender = loggedUser.id
-    const receiver = user.id
-    const roomId = loggedUser.id+user.id
+    const sender = loggedUser.id;
+    const receiver = user.id;
     const data = {
       text,
       time,
       sender,
       receiver,
-      roomId
-
+      roomId,
     };
-    socket.emit("message", data);
+    axios
+      .post(`${import.meta.env.VITE_BASE_URL}/message`, data)
+      .then((res) => {
+        console.log(res.data);
+      })
+      .catch((err) => console.log(err));
     e.target.textfield.value = "";
   };
 
@@ -77,11 +78,13 @@ const ChatBox = ({user,deletedUser}) => {
               <h1 className="text-xl font-medium">{user?.name || ""}</h1>
             </div>
           </div>
-          
-          <button onClick={()=>deletedUser(user)} className="w-14 h-14 rounded-full">
-              <img src={deleteIcon} alt="" />
-            </button>
-          
+
+          <button
+            onClick={() => deletedUser(user)}
+            className="w-14 h-14 rounded-full"
+          >
+            <img src={deleteIcon} alt="" />
+          </button>
         </div>
       </div>
       <div
@@ -92,7 +95,11 @@ const ChatBox = ({user,deletedUser}) => {
         {allMessage?.map((e, index) => {
           return (
             <div key={index} className=" p-4 h-full  rounded-xl mb-5 ">
-              {e.sender === loggedUser.id || e.sender === "self" ? <SelfText e={e} /> : <OtherText e={e} />}
+              {e.sender === loggedUser.id || e.sender === "self" ? (
+                <SelfText e={e} />
+              ) : (
+                <OtherText e={e} />
+              )}
             </div>
           );
         })}
