@@ -9,6 +9,7 @@ import Root from "./Root";
 import Inbox from "./Components/Inbox";
 import SignUp from "./Components/SignUp";
 import ContextProvider from "./Context/ContextProvider";
+import InputFile from "./Components/InputFile";
 
   const router = createBrowserRouter([
     {
@@ -27,6 +28,10 @@ import ContextProvider from "./Context/ContextProvider";
         {
             path:"/inbox",
             element: <Inbox/>
+        },
+        {
+          path: "/photo",
+          element: <InputFile/>
         }
       ]
     },

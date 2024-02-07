@@ -17,6 +17,7 @@ const ChatBox = ({ user, deletedUser }) => {
   const [allMessage, setAllMessage] = useState([]);
   const { loggedUser } = useContext(UserContext);
   const roomId = loggedUser?.id + user?.id;
+  console.log(roomId);
   useEffect(() => {
     axios
       .get(`${import.meta.env.VITE_BASE_URL}/message/${roomId}`)
@@ -27,11 +28,10 @@ const ChatBox = ({ user, deletedUser }) => {
     return () => {
       socket.emit("join", { connect: false, room: loggedUser?.id + user?.id });
     };
-  }, [user.id]);
+  }, [user?.id]);
 
   useEffect(() => {
     socket.on("message", (data) => {
-      console.log(data);
       setAllMessage((prev) => [...prev, data]);
     });
     return () => {
@@ -44,9 +44,18 @@ const ChatBox = ({ user, deletedUser }) => {
 
   const sendMessage = (e) => {
     e.preventDefault();
+
     const now = new Date();
     const time = now.getHours() + ":" + now.getMinutes();
     const text = e.target.textfield.value;
+    const photo = e.target.photo.files[0]
+    const attachment = e.target.attachment.files[0]
+    if(!text && !photo && !attachment) return
+    const formdata = new FormData();
+    if(photo){
+      formdata.append("photo", photo);
+    }
+
     const sender = loggedUser.id;
     const receiver = user.id;
     const data = {
@@ -56,11 +65,13 @@ const ChatBox = ({ user, deletedUser }) => {
       receiver,
       roomId,
     };
-    axios
-      .post(`${import.meta.env.VITE_BASE_URL}/message`, data)
-      .then((res) => {
-        console.log(res.data);
-      })
+    formdata.append("data",JSON.stringify(data))
+    
+    axios({
+      method: "post",
+      url: `${import.meta.env.VITE_BASE_URL}/message`,
+      data: formdata
+    }).then((res) => console.log(res.data))
       .catch((err) => console.log(err));
     e.target.textfield.value = "";
   };
@@ -95,7 +106,7 @@ const ChatBox = ({ user, deletedUser }) => {
         {allMessage?.map((e, index) => {
           return (
             <div key={index} className=" p-4 h-full  rounded-xl mb-5 ">
-              {e.sender === loggedUser.id || e.sender === "self" ? (
+              {e.sender === loggedUser.id  ? (
                 <SelfText e={e} />
               ) : (
                 <OtherText e={e} />
@@ -116,26 +127,7 @@ const ChatBox = ({ user, deletedUser }) => {
                 </figure>
               </label>
               <input
-                onChange={(e) => {
-                  const now = new Date();
-                  const time = now.getHours() + ":" + now.getMinutes();
-                  const file = e.target.files[0];
-                  const name = e.target.files[0].name;
-                  const filesize = e.target.files[0].size;
-                  const size = (filesize / (1024 * 1024)).toFixed(2);
-                  const reader = new FileReader();
-                  reader.onload = (e) => {
-                    const imageSrc = e.target.result;
-                    socket.emit("message", {
-                      attach: imageSrc,
-                      name: name,
-                      size,
-                      time,
-                      user: socket.id,
-                    });
-                  };
-                  reader.readAsDataURL(file);
-                }}
+              name="attachment"
                 type="file"
                 id="attachment"
                 className="hidden"
@@ -155,21 +147,7 @@ const ChatBox = ({ user, deletedUser }) => {
                 </figure>
               </label>
               <input
-                onChange={(e) => {
-                  const now = new Date();
-                  const time = now.getHours() + ":" + now.getMinutes();
-                  const file = e.target.files[0];
-                  const reader = new FileReader();
-                  reader.onload = (e) => {
-                    const imageSrc = e.target.result;
-                    socket.emit("message", {
-                      image: imageSrc,
-                      time,
-                      user: socket.id,
-                    });
-                  };
-                  reader.readAsDataURL(file);
-                }}
+              name="photo"
                 type="file"
                 className="hidden"
                 accept="image/*"

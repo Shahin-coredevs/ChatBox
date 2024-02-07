@@ -16,7 +16,7 @@ const SelfText = ({e}) => {
                 {e.text}
               </p>
             )}
-            {e.image && <img className="h-52 w-auto" src={e.image} />}
+            {e.image && <img className="h-52 w-auto" src={`${import.meta.env.VITE_BASE_URL}/photo/${e?.image?.split('/')[1]}`} />}
             {e.attach && (
               <div>
                 <div className="flex flex-col justify-between">
