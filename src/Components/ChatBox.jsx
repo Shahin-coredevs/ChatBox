@@ -17,7 +17,6 @@ const ChatBox = ({ user, deletedUser }) => {
   const [allMessage, setAllMessage] = useState([]);
   const { loggedUser } = useContext(UserContext);
   const roomId = loggedUser?.id + user?.id;
-  console.log(roomId);
   useEffect(() => {
     axios
       .get(`${import.meta.env.VITE_BASE_URL}/message/${roomId}`)
@@ -48,12 +47,12 @@ const ChatBox = ({ user, deletedUser }) => {
     const now = new Date();
     const time = now.getHours() + ":" + now.getMinutes();
     const text = e.target.textfield.value;
-    const photo = e.target.photo.files[0]
-    const attachment = e.target.attachment.files[0]
-    if(!text && !photo && !attachment) return
+    const photo = e.target.photo.files[0];
+    const attach = e.target.attach.files[0];
+    if (!text && !photo && !attach) return;
     const formdata = new FormData();
-    if(photo){
-      formdata.append("photo", photo);
+    if (photo || attach) {
+      formdata.append("photo", photo || attach);
     }
 
     const sender = loggedUser.id;
@@ -65,13 +64,14 @@ const ChatBox = ({ user, deletedUser }) => {
       receiver,
       roomId,
     };
-    formdata.append("data",JSON.stringify(data))
-    
+    formdata.append("data", JSON.stringify(data));
+
     axios({
       method: "post",
       url: `${import.meta.env.VITE_BASE_URL}/message`,
-      data: formdata
-    }).then((res) => console.log(res.data))
+      data: formdata,
+    })
+      .then((res) => console.log(res.data))
       .catch((err) => console.log(err));
     e.target.textfield.value = "";
   };
@@ -106,7 +106,7 @@ const ChatBox = ({ user, deletedUser }) => {
         {allMessage?.map((e, index) => {
           return (
             <div key={index} className=" p-4 h-full  rounded-xl mb-5 ">
-              {e.sender === loggedUser.id  ? (
+              {e.sender === loggedUser.id ? (
                 <SelfText e={e} />
               ) : (
                 <OtherText e={e} />
@@ -127,7 +127,7 @@ const ChatBox = ({ user, deletedUser }) => {
                 </figure>
               </label>
               <input
-              name="attachment"
+                name="attach"
                 type="file"
                 id="attachment"
                 className="hidden"
@@ -147,7 +147,7 @@ const ChatBox = ({ user, deletedUser }) => {
                 </figure>
               </label>
               <input
-              name="photo"
+                name="photo"
                 type="file"
                 className="hidden"
                 accept="image/*"

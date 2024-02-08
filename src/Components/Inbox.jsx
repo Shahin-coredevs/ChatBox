@@ -46,19 +46,8 @@ function Inbox() {
 
   const handleActiveUser =  (e) => {
     setuserActive(e)
-    const sender =  loggedUser?.id
-    const receiver = e?.id
-    const data = {sender,receiver}
-    axios
-      .post(
-        `${import.meta.env.VITE_BASE_URL}/conversations`, data)
-      .then((res) => {
-          console.log(res.data);
-      })
-      .catch((err) => console.log(err));
-
+    
   }
-
 
   if (loading)
     return <div className="bg-red-500 h-screen w-screen">Loading...</div>;

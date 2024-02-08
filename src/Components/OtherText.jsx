@@ -3,6 +3,8 @@ import userIcon from "../assets/UserIcon.svg";
 import downloadIcon from "../assets/downloadIcon.svg";
 
 const OtherText = ({ e }) => {
+  const imageExtensions = ["png", "jpg", "jpeg", "svg", "gif", "avif", "webp"];
+  const checkImage = e?.image?.split("/")[1]?.split(".")[1]?.toLowerCase();
   return (
     <div>
       <p className="flex justify-center items-center">{e.time}</p>
@@ -14,17 +16,29 @@ const OtherText = ({ e }) => {
           {e.text && (
             <p className="w-fit text-left h-fit break-words">{e.text}</p>
           )}
-          {e.image && <img className="h-52 w-auto" src={`${import.meta.env.VITE_BASE_URL}/photo/${e?.image?.split('/')[1]}`} />}
-          {e.attach && (
+          {checkImage && imageExtensions.includes(checkImage) && (
+            <img
+              className="h-52 w-auto"
+              src={`${import.meta.env.VITE_BASE_URL}/photo/${
+                e?.image?.split("/")[1]
+              }`}
+              alt=""
+            />
+          )}
+
+          {checkImage && !imageExtensions.includes(checkImage) && (
             <div>
               <div className="flex flex-col justify-between">
-                <p>{e.name}</p>
+                <p>{e?.image?.split("/")[1]}</p>
                 <figure className="my-2 w-10 h-10 rounded-full justify-center items-center flex">
-                  <a href={e.attach}>
+                  <a
+                    href={`${import.meta.env.VITE_BASE_URL}/photo/${
+                      e?.image?.split("/")[1]
+                    }`}
+                  >
                     <img className="w-full h-full" src={downloadIcon} alt="" />
                   </a>
                 </figure>
-                <p>{e.size} MB</p>
               </div>
             </div>
           )}
