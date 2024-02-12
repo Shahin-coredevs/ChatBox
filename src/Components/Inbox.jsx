@@ -3,9 +3,11 @@ import { useContext, useEffect, useState } from "react";
 import User from "./User";
 import ChatBox from "./ChatBox";
 import userIcon from "../assets/UserIcon.svg";
-import { UserContext } from "../Context/ContextProvider";
+import { UserContext } from "../Context/UserProvider";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import getData from "../utils/req";
+import req from "../utils/req";
 
 function Inbox() {
   const { loggedUser } = useContext(UserContext);
@@ -17,20 +19,21 @@ function Inbox() {
 
   useEffect(() => {
     const abrtSignal = new AbortController();
-    axios.get( `${import.meta.env.VITE_BASE_URL}/users`, {withCredentials:true, signal:abrtSignal.signal})
-    .then(({data}) => {
-      setUsers(data.filter((d) => d.id !== loggedUser?.id));
-       setuserActive(data.filter((d) => d.id !== loggedUser?.id)[0]);
-    })
-    .catch((err)=>console.log(err))
-    .finally(()=>setLoading(false));
 
-    return ()=> abrtSignal.abort;
-    
+    req({
+      uri: "users",
+      signal: abrtSignal.signal,
+    })
+      .then(({ data }) => {
+        const filteredUsers = data.filter((d) => d.id !== loggedUser?.id);
+        setUsers(filteredUsers);
+        setuserActive(filteredUsers[0]);
+      })
+      .catch((err) => console.error("Error fetching data:", err))
+      .finally(() => setLoading(false));
+    return () => abrtSignal.abort();
   }, [loggedUser]);
 
-
- 
   const deletehandler = (item) => {
     const user = allUser.filter((e) => e.id !== item.id);
     setAllUser(user);
@@ -38,16 +41,23 @@ function Inbox() {
   };
 
   const handleLoghOut = () => {
-    localStorage.clear();
-    axios.post(`${import.meta.env.VITE_BASE_URL}/logout`, {},{withCredentials:true})
-    .then(res =>{  navigate('/')})
-    .catch(err=> console.log(err));
+    // axios
+    //   .post(`${import.meta.env.VITE_BASE_URL}/logout`, {
+    //     withCredentials: true,
+    //   })
+    req({
+      uri: "logout",
+      method: "POST",
+    })
+      .then((res) => {
+        navigate("/");
+      })
+      .catch((err) => console.log(err));
   };
 
-  const handleActiveUser =  (e) => {
-    setuserActive(e)
-    
-  }
+  const handleActiveUser = (e) => {
+    setuserActive(e);
+  };
 
   if (loading)
     return <div className="bg-red-500 h-screen w-screen">Loading...</div>;

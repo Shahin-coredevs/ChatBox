@@ -5,7 +5,6 @@ const Root = () => {
     return (
         <div>
             <Outlet/>
-            
         </div>
     );
 };

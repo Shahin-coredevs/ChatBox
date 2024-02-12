@@ -8,8 +8,9 @@ import deleteIcon from "../assets/deleteIcon.svg";
 import { io } from "socket.io-client";
 import SelfText from "./SelfText";
 import OtherText from "./OtherText";
-import { UserContext } from "../Context/ContextProvider";
+import { UserContext } from "../Context/UserProvider";
 import axios from "axios";
+import req from "../utils/req";
 const socket = io("http://localhost:3000", { withCredentials: true });
 
 const ChatBox = ({ user, deletedUser }) => {
@@ -18,12 +19,12 @@ const ChatBox = ({ user, deletedUser }) => {
   const { loggedUser } = useContext(UserContext);
   const roomId = loggedUser?.id + user?.id;
   useEffect(() => {
-    axios
-      .get(`${import.meta.env.VITE_BASE_URL}/message/${roomId}`)
-      .then((res) => {
-        setAllMessage(res.data);
-        socket.emit("join", { connect: true, room: loggedUser?.id + user?.id });
-      });
+    req({
+      uri: `message/${roomId}`,
+    }).then((res) => {
+      setAllMessage(res.data);
+      socket.emit("join", { connect: true, room: loggedUser?.id + user?.id });
+    });
     return () => {
       socket.emit("join", { connect: false, room: loggedUser?.id + user?.id });
     };
@@ -66,9 +67,9 @@ const ChatBox = ({ user, deletedUser }) => {
     };
     formdata.append("data", JSON.stringify(data));
 
-    axios({
+    req({
       method: "post",
-      url: `${import.meta.env.VITE_BASE_URL}/message`,
+      uri: "message",
       data: formdata,
     })
       .then((res) => console.log(res.data))

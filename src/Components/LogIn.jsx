@@ -1,8 +1,9 @@
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
-import { UserContext } from "../Context/ContextProvider";
+import { UserContext } from "../Context/UserProvider";
 import axios from "axios";
+import req from "../utils/req";
 export default function LogIn() {
   const { setLoggedUser } = useContext(UserContext);
   const navigate = useNavigate();
@@ -13,18 +14,21 @@ export default function LogIn() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const fromData = e.target;
-    const email = fromData.email.value;
-    const password = fromData.password.value;
-    axios
-      .post(
-        `${import.meta.env.VITE_BASE_URL}/login`,
-        { email, password },
-        { withCredentials: true }
-      )
+    const formData = e.target;
+    const email = formData.email.value;
+    const password = formData.password.value;
+    const data = { email, password };
+    req({
+      uri: "login",
+      method: "POST",
+      data,
+    })
       .then((res) => {
-        setLoggedUser(res.data);
-        navigate("/inbox");
+        if (res.status === 200) {
+          setLoggedUser(res.data);
+          navigate("/inbox");
+          formData.reset();
+        }
       })
       .catch((err) => console.log(err));
   };

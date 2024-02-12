@@ -1,32 +1,31 @@
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import req from "../utils/req";
 const SignUp = () => {
   const {
     register,
     formState: { errors },
   } = useForm();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
-    e.preventDefault()
-    const fromData= e.target    
-    const name = fromData.name.value
-    const email = fromData.email.value
-    const password = fromData.password.value
-    const user = {name,password,email}
-    console.log(user);
-    fetch("http://localhost:3000/users", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(user),
-      });
-      navigate('/')
-      fromData.name.value = ''
-      fromData.email.value = ''
-      fromData.password.value=''
+    e.preventDefault();
+    const fromData = e.target;
+    const name = fromData.name.value;
+    const email = fromData.email.value;
+    const password = fromData.password.value;
+    const user = { name, password, email };
 
+    req({
+      uri: "users",
+      method: "POST",
+      data: user,
+    }).then((res) => {
+      if (res.status === 200) {
+        navigate("/");
+        fromData.reset();
+      }
+    });
   };
   return (
     <div className="w-1/2 mt-20 mx-auto h-full bg-slate-300 shadow-xl rounded-xl">
@@ -61,7 +60,6 @@ const SignUp = () => {
             placeholder="abc@email.com"
             className="input input-bordered w-full px-3 py-2 rounded-xl"
             required
-            
           />
           {errors.name?.type === "required" && (
             <p className="text-red-600">Email is required</p>
