@@ -20,6 +20,7 @@ function Inbox() {
   const [loading, setLoading] = useState(true);
   const [useractive, setuserActive] = useState(null);
   const [allUser, setAllUser] = useState(users);
+  const [userVisible, setUserVisible] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -100,26 +101,37 @@ function Inbox() {
               <img src={logo} alt="w-full h-full rounded-full" />
             </figure>
             <p className="uppercase text-2xl font-semibold text-[#99FFAF]">
-              chatBooth
+              ChatCove
             </p>
           </div>
-          <div className="flex">
-            <figure className="h-14 w-14">
-              <img
-                src={`${import.meta.env.VITE_BASE_URL}/photo/${
-                  loggedUser?.photo
-                }`}
-                alt=""
-                className="h-full w-full rounded-full"
-              />
-            </figure>
-          </div>
+          <button onClick={() => setUserVisible(!userVisible)}>
+            <div className="flex">
+              <figure className="h-14 w-14">
+                <img
+                  src={`${import.meta.env.VITE_BASE_URL}/photo/${
+                    loggedUser?.photo
+                  }`}
+                  alt=""
+                  className="h-full w-full rounded-full"
+                />
+              </figure>
+            </div>
+          </button>
           <button
             onClick={handleLoghOut}
             className="bg-blue-400 px-4 py-2 my-8 rounded-xl cursor-pointer"
           >
             Log Out
           </button>
+          {/* {userVisible && (
+            <div>
+              <div className="relative">
+                <div className="bg-red-400 w-40 h-40 absolute top-20 right-20">
+                  <p>logout</p>
+                </div>
+              </div>
+            </div>
+          )} */}
         </div>
         <User data={users} active={useractive} userHandler={handleActiveUser} />
       </div>

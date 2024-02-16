@@ -11,7 +11,7 @@ import SelfText from "./SelfText";
 import OtherText from "./OtherText";
 import { UserContext } from "../Context/UserProvider";
 import axios from "axios";
-import req from "../utils/req";
+import req from "../utils/req";       
 import { useDispatch } from "react-redux";
 import { create, setValue } from "../Redux/reducers/chatReducer";
 const socket = io("http://localhost:3000", { withCredentials: true });
@@ -20,6 +20,9 @@ const ChatBox = ({ user, deletedUser }) => {
   const scrollRef = useRef();
   const dispatch = useDispatch();
   const [allMessage, setAllMessage] = useState([]);
+        // const { messages } = useSelector(
+        //   (state) => ({ messages: state.chatStore.messages }, shallowEqual)
+        // );
   const { loggedUser } = useContext(UserContext);
   const roomId = loggedUser?.id + user?.id;
   useEffect(() => {

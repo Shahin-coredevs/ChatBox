@@ -16,9 +16,11 @@ const OtherText = ({ e, user }) => {
             alt=""
           />
         </figure>
-        <div className="flex h-fit w-fit px-3 py-2 bg-slate-50 rounded-xl flex-col  justify-between">
+        <div className="flex h-fit w-fit bg-slate-50 rounded-xl flex-col  justify-between">
           {e.text && (
-            <p className="w-fit text-left h-fit break-words">{e.text}</p>
+            <p className="w-fit text-left h-fit break-words text-xl px-3 py-2">
+              {e.text}
+            </p>
           )}
           {checkImage && imageExtensions.includes(checkImage) && (
             <img
