@@ -12,7 +12,6 @@ const useUser = () => {
       uri: "me",
     }).then((res) => {
       setLoggedUser(res.data);
-      console.log(res.data);
     });
     setLoading(false);
   }, []);

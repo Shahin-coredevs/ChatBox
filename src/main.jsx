@@ -9,6 +9,8 @@ import UserProvider from "./Context/UserProvider";
 import InputFile from "./Components/InputFile";
 import { Provider } from "react-redux";
 import Context from "./Context/Context";
+import Sign from "./Components/Sign";
+import SignIn from "./Components/SignIn";
 
 const router = createBrowserRouter([
   {
@@ -17,19 +19,15 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <LogIn />,
-      },
-      {
-        path: "/signup",
-        element: <SignUp />,
+        element: <SignIn />,
       },
       {
         path: "/inbox",
         element: <Inbox />,
       },
       {
-        path: "/photo",
-        element: <InputFile />,
+        path: "/signup",
+        element: <Sign />,
       },
     ],
   },
