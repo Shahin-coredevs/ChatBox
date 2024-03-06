@@ -8,7 +8,7 @@ const User = ({ data, userHandler, active }) => {
         <div
           key={index}
           onClick={() => userHandler(e)}
-          className={`p-4  rounded-xl  m-4  ${
+          className={`p-4  rounded-xl  m-4 w-screen ${
             active?.id === e.id ? "bg-[#141414]" : "bg-[#202020]"
           }`}
         >

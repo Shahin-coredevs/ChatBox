@@ -4,7 +4,11 @@ import { Link, useNavigate } from "react-router-dom";
 import req from "../utils/req";
 import { useContext } from "react";
 import { UserContext } from "../Context/UserProvider";
+import { useDispatch, useSelector } from "react-redux";
+import { addUser } from "../Redux/reducers/userReducer";
 const Sign = () => {
+  const reduxUser = useSelector((state) => state.user.users);
+  const dispatch = useDispatch();
   const {
     register,
     formState: { errors },
@@ -33,6 +37,7 @@ const Sign = () => {
       data: fd,
     })
       .then((res) => {
+        dispatch(addUser(user));
         alert("user created");
         navigate("/");
         formData.reset();
@@ -111,7 +116,7 @@ const Sign = () => {
                     name="password"
                     {...register("password", {
                       required: true,
-                      minLength: 2,
+                      minLength: 6,
                       maxLength: 20,
                     })}
                     placeholder="password"
@@ -121,9 +126,9 @@ const Sign = () => {
                   {errors.password?.type === "required" && (
                     <p className="text-red-600">Password is required</p>
                   )}
-                  {errors.password?.type === "minLength" && (
+                  {errors.password?.type === 6 && (
                     <p className="text-red-600">
-                      Password must be 2 characters
+                      Password must be at least 6 characters
                     </p>
                   )}
                 </div>

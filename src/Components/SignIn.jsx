@@ -5,9 +5,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { UserContext } from "../Context/UserProvider";
 import { useContext } from "react";
 import req from "../utils/req";
+import { useDispatch } from "react-redux";
+import { setLoggedUser } from "../Redux/reducers/loggedUserReducer";
 
 const SignIn = () => {
-  const { setLoggedUser } = useContext(UserContext);
+  // const { setLoggedUser } = useContext(UserContext);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const {
     register,
@@ -27,12 +30,21 @@ const SignIn = () => {
     })
       .then((res) => {
         if (res.status === 200) {
-          setLoggedUser(res.data);
+          // setLoggedUser(res.data);
+          dispatch(setLoggedUser(res.data));
           navigate("/inbox");
           formData.reset();
         }
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        console.log(err);
+        if (err.response.status === 404) {
+          alert("User not found");
+        }
+        if (err.response.status === 401) {
+          alert("User Unauthorised");
+        }
+      });
   };
   return (
     <div>
